@@ -1,0 +1,9 @@
+$themeColor: #818CF8;
+$bgColor: #aab2f2;
+
+@import 'vue-slider-component/lib/theme/material.scss';
+
+.vue-slider-mark-label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+}
