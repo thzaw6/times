@@ -1,22 +1,18 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { createInjectionState } from "@vueuse/core";
 
 const [useProvideTimeStore, useTimeStore] = createInjectionState((initalValue) => {
   const minuteOfDay = ref(initalValue);
 
-  const setMinuteOfDay = (newMinuteOfDay) => {
-    minuteOfDay.value = newMinuteOfDay;
-  };
-  return { minuteOfDay, setMinuteOfDay };
+  return { minuteOfDay };
 });
 
 const [useProvideTimeFormatStore, useTimeFormatStore] = createInjectionState((initialValue) => {
   const timeFormat = ref(initialValue);
 
-  const setTimeFormat = (newTimeFormat) => {
-    timeFormat.value = newTimeFormat;
-  };
-  return { timeFormat, setTimeFormat };
+  const isTwelveHourFormat = computed(() => timeFormat.value === "12h");
+
+  return { timeFormat, isTwelveHourFormat };
 });
 
 export { useProvideTimeStore, useTimeStore };
