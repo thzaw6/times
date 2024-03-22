@@ -1,26 +1,29 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+
+import { useTimeFormatStore } from "../stores/useTimeStore";
 
 const currentTime = ref("");
-const twelveHour = ref(true);
+const { timeFormat } = useTimeFormatStore();
 
 function getTime() {
   const options = {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: twelveHour.value,
+    hour12: timeFormat.value === "12h",
   };
   return new Date().toLocaleTimeString("en-US", options);
 };
 
 function toggleTimeFormat () {
-  twelveHour.value = !twelveHour.value;
+  timeFormat.value = timeFormat.value === "12h" ? "24h" : "12h";
   currentTime.value = getTime();
 };
 
 let intervalId;
 
 onMounted(() => {
+  currentTime.value = getTime();
   intervalId = setInterval(() => {
     currentTime.value = getTime();
   }, 1000);
@@ -70,7 +73,7 @@ onBeforeUnmount(() => {
     <div class="navbar-end">
       <a class="btn btn-sm btn-ghost pointer-events-none">{{ currentTime }}</a>
       <button class="btn btn-sm btn-ghost" @click="toggleTimeFormat">
-        <template v-if="twelveHour"> 24 Hr </template>
+        <template v-if="timeFormat === '12h'"> 24 Hr </template>
         <template v-else> 12 Hr </template>
       </button>
     </div>

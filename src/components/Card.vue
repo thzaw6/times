@@ -2,8 +2,11 @@
 import { ref, computed, onBeforeMount } from "vue";
 import VueSlider from "vue-slider-component";
 
+import { useTimeStore, useTimeFormatStore } from "../stores/useTimeStore";
+
 const currentDate = ref("");
-const minuteOfDay = ref(0);
+const { minuteOfDay } = useTimeStore();
+const { timeFormat } = useTimeFormatStore();
 const marks = ref({
   0: "00",
   360: "06",
@@ -12,13 +15,13 @@ const marks = ref({
   1435: "24",
 });
 
-function getDate () {
+function getDate() {
   const options = {
     month: "short",
     day: "numeric",
   };
   return new Date().toLocaleDateString("en-US", options);
-};
+}
 
 onBeforeMount(() => {
   const now = new Date();
@@ -26,11 +29,15 @@ onBeforeMount(() => {
   currentDate.value = getDate();
 });
 
+// convert minuteOfDay to time
 const time = computed(() => {
   const hours = Math.floor(minuteOfDay.value / 60);
   const minuteOfDays = minuteOfDay.value % 60;
   const period = hours < 12 || hours === 24 ? "AM" : "PM";
 
+  if (timeFormat.value === "24h") {
+    return `${hours}:${minuteOfDays < 10 ? `0${minuteOfDays}` : minuteOfDays}`;
+  }
   let hoursIn12HourFormat = hours % 12;
   if (hoursIn12HourFormat === 0) {
     hoursIn12HourFormat = 12;

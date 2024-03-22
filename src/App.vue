@@ -4,7 +4,10 @@ import { defineComponent } from "vue";
 import Card from "./components/Card.vue";
 import Navbar from "./components/Navbar.vue";
 import NewCard from "./components/NewCard.vue";
+import { useProvideTimeStore, useProvideTimeFormatStore } from "./stores/useTimeStore";
 
+useProvideTimeStore(0);
+useProvideTimeFormatStore("12h");  // default to 12-hour format
 defineComponent({
   components: {
     Card,
@@ -13,7 +16,6 @@ defineComponent({
   },
 });
 </script>
-
 
 <template>
   <div class="container mx-auto">
