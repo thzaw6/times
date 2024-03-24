@@ -1,0 +1,27 @@
+[
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "timezoneIdentifier": "Europe/London"
+    },
+    {
+      "city": "Sydney",
+      "country": "Australia",
+      "timezoneIdentifier": "Australia/Sydney"
+    },
+    {
+      "city": "Yangon",
+      "country": "Myanmar",
+      "timezoneIdentifier": "Asia/Yangon"
+    },
+    {
+      "city": "Tokyo",
+      "country": "Japan",
+      "timezoneIdentifier": "Asia/Tokyo"
+    },
+    {
+      "city": "San Francisco",
+      "country": "United States",
+      "timezoneIdentifier": "America/Los_Angeles"
+    }
+  ]
