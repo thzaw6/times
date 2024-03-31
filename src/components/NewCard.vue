@@ -1,7 +1,6 @@
 <script setup>
-import { computed, defineEmits, onBeforeMount, onMounted, ref, nextTick } from "vue";
+import { computed, onBeforeMount, onMounted, ref, nextTick } from "vue";
 
-import locations from "../../data/locations.json";
 import CrossIcon from "./icons/CrossIcon.vue";
 import SearchIcon from "./icons/SearchIcon.vue";
 
@@ -9,6 +8,12 @@ const state = ref("idle");
 const searchInput = ref("");
 const selectedLocation = ref(null);
 const emit = defineEmits(["newLocation"]);
+const props = defineProps({
+  locations: {
+    type: Array,
+    required: true,
+  },
+});
 
 function addLocation(location) {
   emit("newLocation", location);
@@ -31,7 +36,7 @@ function selectLocation(location) {
 
 const filteredLocations = computed(() => {
   if (searchInput.value === "") return [];
-  return locations.filter((location) => {
+  return props.locations.filter((location) => {
     return (
       location.city.toLowerCase().startsWith(searchInput.value.toLowerCase()) ||
       location.country.toLowerCase().startsWith(searchInput.value.toLowerCase())

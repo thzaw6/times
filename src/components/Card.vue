@@ -16,6 +16,7 @@ const marks = ref({
   1080: "18",
   1435: "24",
 });
+const emit = defineEmits(["removeLocation"]);
 
 // define the props
 const props = defineProps({
@@ -31,6 +32,10 @@ function getDate() {
     day: "numeric",
   };
   return new Date().toLocaleDateString("en-US", options);
+}
+
+function removeLocation() {
+  emit("removeLocation", props.location);
 }
 
 onBeforeMount(() => {
@@ -70,7 +75,7 @@ const time = computed(() => {
         <button class="btn btn-xs ms-auto bg-dark-100">
           <EditIcon />
         </button>
-        <button class="btn btn-xs">
+        <button class="btn btn-xs" @click="removeLocation">
           <TrashIcon />
         </button>
       </div>
