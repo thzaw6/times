@@ -1,11 +1,31 @@
 <script setup>
-import { computed, defineEmits, ref } from "vue";
+import { computed, defineEmits, onBeforeMount, onMounted, ref, nextTick } from "vue";
 
 import locations from "../../data/locations.json";
 
 const state = ref("idle");
 const searchInput = ref("");
-const emit = defineEmits(["new-location"]);
+const selectedLocation = ref(null);
+const emit = defineEmits(["newLocation"]);
+
+function addLocation(location) {
+  emit("newLocation", location);
+  state.value = "idle";
+  searchInput.value = "";
+}
+
+function handleKeyDown(event) {
+  if (event.key === "Enter" && selectedLocation.value) {
+    addLocation(selectedLocation.value);
+  } else if (event.key === "Escape") {
+    state.value = "idle";
+    searchInput.value = "";
+  }
+}
+
+function selectLocation(location) {
+  selectedLocation.value = location;
+}
 
 const filteredLocations = computed(() => {
   if (searchInput.value === "") return [];
@@ -16,6 +36,7 @@ const filteredLocations = computed(() => {
     );
   });
 });
+
 
 // custom directives
 const vFocus = {
@@ -59,6 +80,7 @@ const vFocus = {
             placeholder="Search"
             v-model="searchInput"
             v-focus="state === 'search'"
+            @keydown="handleKeyDown"
           />
           <button class="rounded focus:outline-none hover:opacity-70" @click.stop="state = 'idle'">
             <svg
@@ -74,8 +96,13 @@ const vFocus = {
           </button>
         </label>
         <ul v-if="searchInput !== ''" class="menu shadow bg-base-100 rounded-box w-100">
-          <li v-for="location in filteredLocations">
-            <a href="#">{{ location.city }}, {{ location.country }}</a>
+          <li
+            v-for="location in filteredLocations"
+            :key="location.city"
+            @click="addLocation(location)"
+            @mouseover="selectLocation(location)"
+          >
+            <div>{{ location.city }}, {{ location.country }}</div>
           </li>
         </ul>
       </div>

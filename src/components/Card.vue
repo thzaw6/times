@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onBeforeMount } from "vue";
+import { defineProps, ref, computed, onBeforeMount } from "vue";
 import VueSlider from "vue-slider-component";
 
 import { useTimeStore, useTimeFormatStore } from "../stores/useTimeStore";
@@ -13,6 +13,14 @@ const marks = ref({
   720: "12",
   1080: "18",
   1435: "24",
+});
+
+// define the props
+const props = defineProps({
+  location: {
+    type: Object,
+    required: true,
+  },
 });
 
 function getDate() {
@@ -52,11 +60,11 @@ const time = computed(() => {
 
 <template>
   <div
-    class="card card-compact min-h-40 hover:border hover:border-indigo-400 w-100 bg-base-100 shadow-xl m-2"
+    class="card card-compact min-h-40 w-100 bg-base-100 shadow-xl m-2 hover:border hover:border-indigo-400"
   >
     <div class="card-body">
       <div class="flex flex-row">
-        <div>London, United Kingdom</div>
+        <div>{{ location.city }}, {{ location.country }}</div>
         <button class="btn btn-xs ms-auto bg-dark-100">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +102,7 @@ const time = computed(() => {
         {{ time }}
       </div>
       <div class="text-sm">
-        <span>GMT+0</span> | <span>{{ currentDate }}</span>
+        <span>{{ location.utcOffset }}</span> | <span>{{ currentDate }}</span>
       </div>
       <div class="mx-1 mt-3 mb-4">
         <vue-slider
