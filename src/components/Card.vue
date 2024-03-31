@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, computed, onBeforeMount } from "vue";
+import { ref, computed, onBeforeMount } from "vue";
 import VueSlider from "vue-slider-component";
 
 import { useTimeStore, useTimeFormatStore } from "../stores/useTimeStore";
