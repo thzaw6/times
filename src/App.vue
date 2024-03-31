@@ -39,7 +39,6 @@ onBeforeMount(() => {
       <NewCard @new-location="addNewLocation" />
     </div>
   </div>
-  {{ userLocations }}
 </template>
 
 <style scoped></style>
