@@ -1,13 +1,17 @@
 <script setup>
-import { ref, computed, onBeforeMount } from "vue";
+import { ref, computed, onBeforeMount, onMounted, watch, watchEffect } from "vue";
+import { DateTime } from "luxon";
 import VueSlider from "vue-slider-component";
 
 import EditIcon from "./icons/EditIcon.vue";
 import TrashIcon from "./icons/TrashIcon.vue";
 import { useTimeStore, useTimeFormatStore } from "../stores/useTimeStore";
 
-const currentDate = ref("");
-const { minuteOfDay } = useTimeStore();
+const luxonNow = ref("");
+const { localMinuteOfDay, luxonDateTime } = useTimeStore();
+// const locationMinuteOfDay = ref(0);
+const locationDateTime = ref(null);
+const vueLoaded = ref(false);
 const { timeFormat } = useTimeFormatStore();
 const marks = ref({
   0: "00",
@@ -16,7 +20,7 @@ const marks = ref({
   1080: "18",
   1435: "24",
 });
-const emit = defineEmits(["removeLocation"]);
+const emit = defineEmits(["removeLocation", "updateOffset"]);
 
 // define the props
 const props = defineProps({
@@ -24,45 +28,92 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  offset: {
+    type: Number,
+    required: true,
+  },
 });
-
-function getDate() {
-  const options = {
-    month: "short",
-    day: "numeric",
-  };
-  return new Date().toLocaleDateString("en-US", options);
-}
 
 function removeLocation() {
   emit("removeLocation", props.location);
 }
 
+function minuteOfDayToDateTime(minuteOfDay) {
+  const hours = Math.floor(minuteOfDay / 60);
+  const minutes = minuteOfDay % 60;
+  return DateTime.local().setZone(props.location.timezoneIdentifier).set({ hours, minutes });
+}
+
+onMounted(() => {
+  vueLoaded.value = true;
+});
+
 onBeforeMount(() => {
-  const now = new Date();
-  minuteOfDay.value = now.getHours() * 60 + now.getMinutes();
-  currentDate.value = getDate();
+  locationDateTime.value = DateTime.local().setZone(props.location.timezoneIdentifier).plus({ minutes: props.offset });
+  // locationMinuteOfDay.value = locationDateTime.value.hour * 60 + locationDateTime.value.minute;
 });
 
-// convert minuteOfDay to time
-const time = computed(() => {
-  const hours = Math.floor(minuteOfDay.value / 60);
-  const minuteOfDays = minuteOfDay.value % 60;
-  const period = hours < 12 || hours === 24 ? "AM" : "PM";
-
-  if (timeFormat.value === "24h") {
-    return `${hours}:${minuteOfDays < 10 ? `0${minuteOfDays}` : minuteOfDays}`;
+// computed
+const locationMinuteOfDay = computed({
+  get() {
+    const dt = DateTime.local().setZone(props.location.timezoneIdentifier).plus({ minutes: props.offset });
+    const mofday = Math.round(dt.hour * 60 + dt.minute);
+    return dt.hour * 60 + dt.minute;
+  },
+  set(value) {
+    if (value === 0) {
+      return;
+    }
+    const hours = Math.floor(value / 60);
+    const minutes = value % 60;
+    const newDateTime = DateTime.local().setZone(props.location.timezoneIdentifier).set({ hours, minutes });
+    const diff = newDateTime.diff(locationDateTime.value, "minutes").minutes.toFixed(0);
+    emit("updateOffset", parseInt(diff));
   }
-  let hoursIn12HourFormat = hours % 12;
-  if (hoursIn12HourFormat === 0) {
-    hoursIn12HourFormat = 12;
-  }
-
-  // Pad minuteOfDays with leading zero if less than 10
-  const minuteOfDaysPadded = minuteOfDays < 10 ? `0${minuteOfDays}` : minuteOfDays;
-
-  return `${hoursIn12HourFormat}:${minuteOfDaysPadded} ${period}`;
 });
+
+const locationDateTimeFromMinuteOfDay = computed(() => {
+  const hours = Math.floor(locationMinuteOfDay.value / 60);
+  const minutes = locationMinuteOfDay.value % 60;
+  return DateTime.local().setZone(props.location.timezoneIdentifier).set({ hours, minutes });
+});
+
+const formattedLocationTime = computed(() => {
+  return locationDateTimeFromMinuteOfDay.value.toLocaleString(DateTime.TIME_SIMPLE);
+});
+
+const formattedUTCOffset = computed(() => {
+  const offset = locationDateTimeFromMinuteOfDay.value.offset / 60;
+  return offset > 0 ? `UTC+${offset}` : `UTC${offset}`;
+});
+
+const formattedLocationDate = computed(() => {
+  return locationDateTimeFromMinuteOfDay.value.toLocaleString(DateTime.DATE_MED);
+});
+
+// watchers
+// watch(locationMinuteOfDay, (newValue, oldValue) => {
+//   if (!vueLoaded.value) {
+//     return;
+//   }
+//   const hours = Math.floor(newValue / 60);
+//   const minutes = newValue % 60;
+//   const newDateTime = DateTime.local().setZone(props.location.timezoneIdentifier).set({ hours, minutes });
+//   const diff = newDateTime.diff(locationDateTime.value, "minutes").minutes.toFixed(0);
+//   // console.log(locationDateTime.value.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS))
+//   // console.log(newDateTime.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS))
+//   // console.log(locationMinuteOfDay.value, diff);
+//   emit("updateOffset", parseInt(diff));
+// });
+
+// watchEffect(props.offset, (newValue, oldValue) => {
+//   if (!vueLoaded.value) {
+//     return;
+//   }
+//   locationDateTime.value = DateTime.local().setZone(props.location.timezoneIdentifier).plus({ minutes: newValue });
+//   locationMinuteOfDay.value = locationDateTime.value.hour * 60 + locationDateTime.value.minute;
+//   conosle.log(locationMinuteOfDay.value);
+// });
 </script>
 
 <template>
@@ -70,6 +121,7 @@ const time = computed(() => {
     class="card card-compact min-h-40 w-100 bg-base-100 shadow-xl m-2 hover:border hover:border-indigo-400"
   >
     <div class="card-body">
+      {{ locationMinuteOfDay }}
       <div class="flex flex-row">
         <div>{{ location.city }}, {{ location.country }}</div>
         <button class="btn btn-xs ms-auto bg-dark-100">
@@ -80,18 +132,18 @@ const time = computed(() => {
         </button>
       </div>
       <div class="text-2xl font-bold">
-        {{ time }}
+        {{ formattedLocationTime }}
       </div>
       <div class="text-sm">
-        <span>{{ location.utcOffset }}</span> | <span>{{ currentDate }}</span>
+        <span>{{ formattedUTCOffset }}</span> | <span>{{ formattedLocationDate }}</span>
       </div>
       <div class="mx-1 mt-3 mb-4">
         <vue-slider
-          v-model="minuteOfDay"
+          v-model="locationMinuteOfDay"
           :min="0"
-          :max="1435"
+          :max="1440"
           :tooltip="'none'"
-          :interval="5"
+          :interval="1"
           :marks="marks"
         />
       </div>

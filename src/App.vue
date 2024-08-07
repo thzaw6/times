@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, reactive } from "vue";
+import { onBeforeMount, reactive, ref } from "vue";
 import { DateTime } from "luxon";
 
 import Card from "./components/Card.vue";
@@ -8,9 +8,10 @@ import NewCard from "./components/NewCard.vue";
 import locations from "../data/locations.json";
 import { useProvideTimeStore, useProvideTimeFormatStore } from "./stores/useTimeStore";
 
-useProvideTimeStore(0);
-useProvideTimeFormatStore("12h"); // default to 12-hour format
+// useProvideTimeStore(0);
+// useProvideTimeFormatStore("12h"); // default to 12-hour format
 const userLocations = reactive([]);
+const offset = ref(0);
 
 function addNewLocation(location) {
   userLocations.push(location);
@@ -22,9 +23,12 @@ function removeLocation(location) {
 }
 
 onBeforeMount(() => {
-  const zoneIdentifier = DateTime.now().zoneName;
+  const localDateTime = DateTime.local();
+  useProvideTimeStore(localDateTime.hour * 60 + localDateTime.minute);
+  useProvideTimeFormatStore("12h"); // default to 12-hour format
+
   locations.find((location) => {
-    if (location.timezoneIdentifier === zoneIdentifier) {
+    if (location.timezoneIdentifier === localDateTime.zoneName) {
       userLocations.push(location);
     }
   });
@@ -39,7 +43,9 @@ onBeforeMount(() => {
         v-for="location in userLocations"
         :key="location.city"
         :location="location"
+        :offset="offset"
         @remove-location="removeLocation"
+        @update-offset="offset = $event"
       />
       <NewCard :locations="locations" @new-location="addNewLocation" />
     </div>

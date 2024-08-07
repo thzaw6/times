@@ -7,7 +7,9 @@ import SearchIcon from "./icons/SearchIcon.vue";
 const state = ref("idle");
 const searchInput = ref("");
 const selectedLocation = ref(null);
+
 const emit = defineEmits(["newLocation"]);
+
 const props = defineProps({
   locations: {
     type: Array,

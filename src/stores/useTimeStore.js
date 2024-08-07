@@ -1,10 +1,20 @@
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { createInjectionState } from "@vueuse/core";
+import { DateTime } from "luxon";
 
 const [useProvideTimeStore, useTimeStore] = createInjectionState((initalValue) => {
-  const minuteOfDay = ref(initalValue);
+  const localMinuteOfDay = ref(initalValue);
 
-  return { minuteOfDay };
+  const luxonDateTime = ref(DateTime.local().startOf("day").plus({
+    hours: Math.floor(localMinuteOfDay.value / 60),
+    minutes:localMinuteOfDay.value
+  }));
+
+  // watch(luxonDateTime, (newValue) => {
+  //   localMinuteOfDay.value = newValue.hour * 60 + newValue.minute;
+  // });
+
+  return { localMinuteOfDay, luxonDateTime };
 });
 
 const [useProvideTimeFormatStore, useTimeFormatStore] = createInjectionState((initialValue) => {
