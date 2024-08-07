@@ -5,6 +5,7 @@ import VueSlider from "vue-slider-component";
 
 import EditIcon from "./icons/EditIcon.vue";
 import TrashIcon from "./icons/TrashIcon.vue";
+import { useTimeFormatStore } from "../stores/useTimeStore";
 
 // props
 const props = defineProps({
@@ -14,6 +15,9 @@ const props = defineProps({
 
 // emits
 const emit = defineEmits(["removeLocation", "updateOffset"]);
+
+// stores
+const { isTwelveHourFormat } = useTimeFormatStore();
 
 // reactive data
 const locationDateTime = ref(null);
@@ -33,12 +37,13 @@ function removeLocation() {
 function minuteOfDayToDateTime(minuteOfDay) {
   const hours = Math.floor(minuteOfDay / 60);
   const minutes = minuteOfDay % 60;
-  return DateTime.local().setZone(props.location.timezoneIdentifier).set({ hours, minutes });
+  return DateTime.local().setLocale("en-US").setZone(props.location.timezoneIdentifier).set({ hours, minutes });
 }
 
 // lifecycle hooks
 onBeforeMount(() => {
   locationDateTime.value = DateTime.local()
+    .setLocale("en-US")
     .setZone(props.location.timezoneIdentifier)
     .plus({ minutes: props.offset });
 });
@@ -46,9 +51,7 @@ onBeforeMount(() => {
 // computed
 const locationMinuteOfDay = computed({
   get() {
-    const dt = DateTime.local()
-      .setZone(props.location.timezoneIdentifier)
-      .plus({ minutes: props.offset });
+    const dt = DateTime.local().setZone(props.location.timezoneIdentifier).plus({ minutes: props.offset });
     return Math.round(dt.hour * 60 + dt.minute);
   },
   set(value) {
@@ -63,7 +66,8 @@ const locationDateTimeFromMinuteOfDay = computed(() => {
 });
 
 const formattedLocationTime = computed(() => {
-  return locationDateTimeFromMinuteOfDay.value.toLocaleString(DateTime.TIME_SIMPLE);
+  const format = isTwelveHourFormat.value ? DateTime.TIME_SIMPLE : DateTime.TIME_24_SIMPLE;
+  return locationDateTimeFromMinuteOfDay.value.toLocaleString(format);
 });
 
 const formattedUTCOffset = computed(() => {
@@ -77,9 +81,7 @@ const formattedLocationDate = computed(() => {
 </script>
 
 <template>
-  <div
-    class="card card-compact min-h-40 w-100 bg-base-100 shadow-xl m-2 hover:border hover:border-indigo-400"
-  >
+  <div class="card card-compact min-h-40 w-100 bg-base-100 shadow-xl m-2 hover:border hover:border-indigo-400">
     <div class="card-body">
       <div class="flex flex-row">
         <div>{{ location.city }}, {{ location.country }}</div>
@@ -97,14 +99,7 @@ const formattedLocationDate = computed(() => {
         <span>{{ formattedUTCOffset }}</span> | <span>{{ formattedLocationDate }}</span>
       </div>
       <div class="mx-1 mt-3 mb-4">
-        <vue-slider
-          v-model="locationMinuteOfDay"
-          :min="0"
-          :max="1439"
-          :tooltip="'none'"
-          :interval="1"
-          :marks="marks"
-        />
+        <vue-slider v-model="locationMinuteOfDay" :min="0" :max="1439" :tooltip="'none'" :interval="1" :marks="marks" />
       </div>
     </div>
   </div>

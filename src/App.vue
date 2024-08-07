@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, reactive, ref } from "vue";
+import { onBeforeMount, reactive, ref, watch } from "vue";
 import { DateTime } from "luxon";
 
 import locations from "../data/locations.json";
@@ -28,6 +28,13 @@ onBeforeMount(() => {
       userLocations.push(location);
     }
   });
+});
+
+// if user location is empty, reset the offset
+watch(userLocations, (newLocations) => {
+  if (newLocations.length === 0) {
+    offset.value = 0;
+  }
 });
 </script>
 
