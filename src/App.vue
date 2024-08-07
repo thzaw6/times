@@ -2,14 +2,12 @@
 import { onBeforeMount, reactive, ref } from "vue";
 import { DateTime } from "luxon";
 
+import locations from "../data/locations.json";
 import Card from "./components/Card.vue";
 import Navbar from "./components/Navbar.vue";
 import NewCard from "./components/NewCard.vue";
-import locations from "../data/locations.json";
-import { useProvideTimeStore, useProvideTimeFormatStore } from "./stores/useTimeStore";
+import { useProvideTimeFormatStore } from "./stores/useTimeStore";
 
-// useProvideTimeStore(0);
-// useProvideTimeFormatStore("12h"); // default to 12-hour format
 const userLocations = reactive([]);
 const offset = ref(0);
 
@@ -24,9 +22,7 @@ function removeLocation(location) {
 
 onBeforeMount(() => {
   const localDateTime = DateTime.local();
-  useProvideTimeStore(localDateTime.hour * 60 + localDateTime.minute);
   useProvideTimeFormatStore("12h"); // default to 12-hour format
-
   locations.find((location) => {
     if (location.timezoneIdentifier === localDateTime.zoneName) {
       userLocations.push(location);

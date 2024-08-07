@@ -1,15 +1,10 @@
 <script setup>
-import { computed, onBeforeMount, onMounted, ref, nextTick } from "vue";
+import { computed, ref } from "vue";
 
 import CrossIcon from "./icons/CrossIcon.vue";
 import SearchIcon from "./icons/SearchIcon.vue";
 
-const state = ref("idle");
-const searchInput = ref("");
-const selectedLocation = ref(null);
-
-const emit = defineEmits(["newLocation"]);
-
+// props
 const props = defineProps({
   locations: {
     type: Array,
@@ -17,6 +12,15 @@ const props = defineProps({
   },
 });
 
+// emits
+const emit = defineEmits(["newLocation"]);
+
+// reactive data
+const state = ref("idle");
+const searchInput = ref("");
+const selectedLocation = ref(null);
+
+// methods
 function addLocation(location) {
   emit("newLocation", location);
   state.value = "idle";
@@ -36,6 +40,7 @@ function selectLocation(location) {
   selectedLocation.value = location;
 }
 
+// computed
 const filteredLocations = computed(() => {
   if (searchInput.value === "") return [];
   return props.locations.filter((location) => {
@@ -45,7 +50,6 @@ const filteredLocations = computed(() => {
     );
   });
 });
-
 
 // custom directives
 const vFocus = {
