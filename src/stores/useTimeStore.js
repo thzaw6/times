@@ -9,5 +9,4 @@ const [useProvideTimeFormatStore, useTimeFormatStore] = createInjectionState((in
   return { timeFormat, isTwelveHourFormat };
 });
 
-export { useProvideTimeStore, useTimeStore };
 export { useProvideTimeFormatStore, useTimeFormatStore };
