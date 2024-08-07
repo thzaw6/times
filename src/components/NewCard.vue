@@ -2,14 +2,12 @@
 import { computed, ref } from "vue";
 
 import CrossIcon from "./icons/CrossIcon.vue";
+import PlusIcon from "./icons/PlusIcon.vue";
 import SearchIcon from "./icons/SearchIcon.vue";
 
 // props
 const props = defineProps({
-  locations: {
-    type: Array,
-    required: true,
-  },
+  locations: Array,
 });
 
 // emits
@@ -66,11 +64,7 @@ const vFocus = {
   >
     <div class="card-body" :class="state === 'idle' ? 'flex items-center justify-center' : ''">
       <div v-if="state === 'idle'" class="flex flex-col items-center justify-center">
-        <svg width="20" height="20" fill="currentColor" aria-hidden="true">
-          <path
-            d="M10 5a1 1 0 0 1 1 1v3h3a1 1 0 1 1 0 2h-3v3a1 1 0 1 1-2 0v-3H6a1 1 0 1 1 0-2h3V6a1 1 0 0 1 1-1Z"
-          />
-        </svg>
+        <PlusIcon />
         <div class="">Add Location</div>
       </div>
       <div v-else-if="state === 'search'" class="dropdown">
