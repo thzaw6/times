@@ -3,7 +3,7 @@ import { ref, computed, onBeforeMount, watchEffect } from "vue";
 import { DateTime } from "luxon";
 import VueSlider from "vue-slider-component";
 
-import EditIcon from "./icons/EditIcon.vue";
+import ResetIcon from "./icons/ResetIcon.vue";
 import TrashIcon from "./icons/TrashIcon.vue";
 import { useTimeFormatStore } from "../stores/useTimeStore";
 
@@ -11,6 +11,7 @@ import { useTimeFormatStore } from "../stores/useTimeStore";
 const props = defineProps({
   location: Object,
   offset: Number,
+  userLocation: Object,
 });
 
 // emits
@@ -22,6 +23,7 @@ const { isTwelveHourFormat } = useTimeFormatStore();
 // reactive data
 const changedLocationDateTime = ref(null);
 const initialLocationDateTime = ref(null);
+const hourDiffFromUserLocation = ref(null);
 const marks = ref({
   0: "00",
   360: "06",
@@ -41,6 +43,23 @@ function minuteOfDayToDateTime(minuteOfDay) {
   return DateTime.local().setLocale("en-US").setZone(props.location.timezoneIdentifier).set({ hours, minutes });
 }
 
+function resetLocationDateTime() {
+  emit("updateOffset", 0);
+}
+
+function setLocationHourDifference() {
+  if (!props.userLocation || props.userLocation.timezoneIdentifier === props.location.timezoneIdentifier) {
+    return;
+  }
+  const userLocationDateTime = DateTime.local().setZone(props.userLocation.timezoneIdentifier);
+  const thisLocationDateTime = DateTime.local().setZone(props.location.timezoneIdentifier);
+
+  const userOffset = userLocationDateTime.offset;
+  const locationOffset = thisLocationDateTime.offset;
+
+  hourDiffFromUserLocation.value = (userOffset - locationOffset) / 60; // difference in hours
+}
+
 // lifecycle hooks
 onBeforeMount(() => {
   initialLocationDateTime.value = DateTime.local()
@@ -48,6 +67,7 @@ onBeforeMount(() => {
     .setZone(props.location.timezoneIdentifier)
     .plus({ minutes: props.offset });
   changedLocationDateTime.value = initialLocationDateTime.value;
+  setLocationHourDifference();
 });
 
 // computed
@@ -94,16 +114,26 @@ watchEffect(() => {
     <div class="card-body">
       <div class="flex flex-row">
         <div>{{ location.city }}, {{ location.country }}</div>
-        <button class="btn btn-xs ms-auto bg-dark-100">
-          <EditIcon />
+        <button class="btn btn-xs ms-auto bg-dark-100 tooltip" data-tip="Reset" @click="resetLocationDateTime">
+          <ResetIcon />
         </button>
-        <button class="btn btn-xs" @click="removeLocation">
+        <button class="btn btn-xs tooltip" data-tip="Delete" @click="removeLocation">
           <TrashIcon />
         </button>
       </div>
-      <div class="text-2xl font-bold">
-        {{ formattedLocationTime }}
+      <div class="flex flex-row items-end">
+        <div class=" text-2xl font-bold py-0">
+          {{ formattedLocationTime }}
+        </div>
+        <div v-if="hourDiffFromUserLocation" class="text-xs opacity-60 ms-auto">
+          {{
+            hourDiffFromUserLocation > 0
+              ? `${hourDiffFromUserLocation} hours behind`
+              : `${-hourDiffFromUserLocation} hours ahead`
+          }}
+        </div>
       </div>
+
       <div class="text-sm">
         <span>{{ formattedUTCOffset }}</span> | <span>{{ formattedLocationDate }}</span>
       </div>
