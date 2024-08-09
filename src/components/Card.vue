@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onBeforeMount } from "vue";
+import { ref, computed, onBeforeMount, watchEffect } from "vue";
 import { DateTime } from "luxon";
 import VueSlider from "vue-slider-component";
 
@@ -20,7 +20,8 @@ const emit = defineEmits(["removeLocation", "updateOffset"]);
 const { isTwelveHourFormat } = useTimeFormatStore();
 
 // reactive data
-const locationDateTime = ref(null);
+const changedLocationDateTime = ref(null);
+const initialLocationDateTime = ref(null);
 const marks = ref({
   0: "00",
   360: "06",
@@ -42,10 +43,11 @@ function minuteOfDayToDateTime(minuteOfDay) {
 
 // lifecycle hooks
 onBeforeMount(() => {
-  locationDateTime.value = DateTime.local()
+  initialLocationDateTime.value = DateTime.local()
     .setLocale("en-US")
     .setZone(props.location.timezoneIdentifier)
     .plus({ minutes: props.offset });
+  changedLocationDateTime.value = initialLocationDateTime.value;
 });
 
 // computed
@@ -56,7 +58,7 @@ const locationMinuteOfDay = computed({
   },
   set(value) {
     const newDateTime = minuteOfDayToDateTime(value);
-    const diff = newDateTime.diff(locationDateTime.value, "minutes").minutes.toFixed(0);
+    const diff = newDateTime.diff(initialLocationDateTime.value, "minutes").minutes.toFixed(0);
     emit("updateOffset", parseInt(diff));
   },
 });
@@ -76,7 +78,14 @@ const formattedUTCOffset = computed(() => {
 });
 
 const formattedLocationDate = computed(() => {
-  return locationDateTimeFromMinuteOfDay.value.toLocaleString(DateTime.DATE_MED);
+  return changedLocationDateTime.value.toLocaleString(DateTime.DATE_MED);
+});
+
+// watchers
+watchEffect(() => {
+  changedLocationDateTime.value = DateTime.local()
+    .setZone(props.location.timezoneIdentifier)
+    .plus({ minutes: props.offset });
 });
 </script>
 
