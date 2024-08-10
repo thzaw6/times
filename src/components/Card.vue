@@ -5,20 +5,17 @@ import VueSlider from "vue-slider-component";
 
 import ResetIcon from "./icons/ResetIcon.vue";
 import TrashIcon from "./icons/TrashIcon.vue";
-import { useTimeFormatStore } from "../stores/useTimeStore";
 
 // props
 const props = defineProps({
   location: Object,
+  isTwelveHourFormat: Boolean,
   offset: Number,
   userLocation: Object,
 });
 
 // emits
 const emit = defineEmits(["removeLocation", "updateOffset"]);
-
-// stores
-const { isTwelveHourFormat } = useTimeFormatStore();
 
 // reactive data
 const changedLocationDateTime = ref(null);
@@ -88,7 +85,7 @@ const locationDateTimeFromMinuteOfDay = computed(() => {
 });
 
 const formattedLocationTime = computed(() => {
-  const format = isTwelveHourFormat.value ? DateTime.TIME_SIMPLE : DateTime.TIME_24_SIMPLE;
+  const format = props.isTwelveHourFormat ? DateTime.TIME_SIMPLE : DateTime.TIME_24_SIMPLE;
   return locationDateTimeFromMinuteOfDay.value.toLocaleString(format);
 });
 

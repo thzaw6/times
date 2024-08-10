@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@vueuse/core": "^10.9.0",
     "luxon": "^3.4.4",
     "vue": "^3.3.11",
     "vue-slider-component": "^4.1.0-beta.7"

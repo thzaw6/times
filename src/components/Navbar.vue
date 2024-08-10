@@ -1,33 +1,33 @@
 <script setup>
-import { onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { DateTime } from "luxon";
 
 import Bars3Icon from "./icons/Bars3Icon.vue";
 import MoonIcon from "./icons/MoonIcon.vue";
 import SunIcon from "./icons/SunIcon.vue";
-import { useTimeFormatStore } from "../stores/useTimeStore";
 
-const currentTime = ref("");
-const { timeFormat, isTwelveHourFormat } = useTimeFormatStore();
+const props = defineProps({
+  isTwelveHourFormat: Boolean,
+});
 
-function getTime() {
-  const options = {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: isTwelveHourFormat.value,
-  };
-  return new Date().toLocaleTimeString("en-US", options);
+const emit = defineEmits(["toggleTimeFormat"]);
+
+const currentTime = ref(null);
+
+function getCurrentTime() {
+  return DateTime.local().setLocale("en-US");
 }
 
-function toggleTimeFormat() {
-  timeFormat.value = timeFormat.value === "12h" ? "24h" : "12h";
-  currentTime.value = getTime();
-}
+const currentTimeFormatted = computed(() => {
+  const format = props.isTwelveHourFormat ? DateTime.TIME_SIMPLE : DateTime.TIME_24_SIMPLE;
+  return currentTime.value.toLocaleString(format);
+});
 
 let intervalId;
 onBeforeMount(() => {
-  currentTime.value = getTime();
+  currentTime.value = getCurrentTime();
   intervalId = setInterval(() => {
-    currentTime.value = getTime();
+    currentTime.value = getCurrentTime();
   }, 1000);
 });
 
@@ -65,10 +65,10 @@ onBeforeUnmount(() => {
         <SunIcon />
         <MoonIcon />
       </label>
-      <a class="btn btn-sm btn-ghost pointer-events-none">{{ currentTime }}</a>
-      <button class="btn btn-sm btn-ghost" @click="toggleTimeFormat">
-        <template v-if="timeFormat === '12h'"> 12 Hr </template>
-        <template v-else> 24 Hr </template>
+      <a class="btn btn-sm btn-ghost pointer-events-none">{{ currentTimeFormatted }}</a>
+      <button class="btn btn-sm btn-ghost" @click="$emit('toggleTimeFormat')">
+        <template v-if="props.isTwelveHourFormat"> 24 Hr </template>
+        <template v-else> 12 Hr </template>
       </button>
     </div>
   </div>
