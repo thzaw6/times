@@ -110,16 +110,29 @@ watchEffect(() => {
   <div class="card card-compact min-h-40 w-100 bg-base-100 shadow-xl m-2 hover:border hover:border-indigo-400">
     <div class="card-body">
       <div class="flex flex-row">
-        <div>{{ location.city }}, {{ location.country }}</div>
-        <button class="btn btn-xs ms-auto bg-dark-100 tooltip" data-tip="Reset" @click="resetLocationDateTime">
+        <!-- TODO: Don't make long names go to new line -->
+        <div class="">{{ location.city }}, {{ location.country }}</div>
+        <button
+          type="button"
+          class="btn btn-xs btn-ghost ms-auto bg-dark-100 tooltip"
+          title="Reset"
+          data-tip="Reset"
+          @click="resetLocationDateTime"
+        >
           <ResetIcon />
         </button>
-        <button class="btn btn-xs tooltip" data-tip="Delete" @click="removeLocation">
+        <button
+          type="button"
+          class="btn btn-xs btn-ghost tooltip"
+          title="Delete"
+          data-tip="Delete"
+          @click="removeLocation"
+        >
           <TrashIcon />
         </button>
       </div>
       <div class="flex flex-row items-end">
-        <div class=" text-2xl font-bold py-0">
+        <div class="text-2xl font-bold py-0">
           {{ formattedLocationTime }}
         </div>
         <div v-if="hourDiffFromUserLocation" class="text-xs opacity-60 ms-auto">

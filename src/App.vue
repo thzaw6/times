@@ -21,6 +21,15 @@ function removeLocation(location) {
   addedLocations.splice(index, 1);
 }
 
+function setTheme(isDarkMode) {
+  const theme = isDarkMode ? "dark" : "light";
+  document.getElementById("base-html").setAttribute("data-theme", theme);
+}
+
+function setTimeFormat(format) {
+  isTwelveHourFormat.value = format === "12hr";
+}
+
 onBeforeMount(() => {
   const localDateTime = DateTime.local();
   locations.find((location) => {
@@ -39,8 +48,8 @@ watch(addedLocations, (newLocations) => {
 </script>
 
 <template>
+  <Navbar :is-twelve-hour-format="isTwelveHourFormat" @toggle-time-format="setTimeFormat" @theme-changed="setTheme" />
   <div class="container mx-auto">
-    <Navbar :is-twelve-hour-format="isTwelveHourFormat" @toggle-time-format="isTwelveHourFormat = !isTwelveHourFormat"/>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <Card
         v-for="location in addedLocations"

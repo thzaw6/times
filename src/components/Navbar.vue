@@ -2,15 +2,13 @@
 import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
 import { DateTime } from "luxon";
 
-import Bars3Icon from "./icons/Bars3Icon.vue";
-import MoonIcon from "./icons/MoonIcon.vue";
-import SunIcon from "./icons/SunIcon.vue";
+import ThemeController from "./ThemeController.vue";
 
 const props = defineProps({
   isTwelveHourFormat: Boolean,
 });
 
-const emit = defineEmits(["toggleTimeFormat"]);
+const emit = defineEmits(["themeChanged", "toggleTimeFormat"]);
 
 const currentTime = ref(null);
 
@@ -37,39 +35,24 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="navbar">
-    <div class="navbar-start">
-      <div class="dropdown">
-        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
-          <Bars3Icon />
+  <div class="navbar bg-base-100">
+    <div class="flex-1 lg:flex-none">
+      <div class="btn btn-ghost text-xl">Timezones</div>
+    </div>
+    <div class="flex flex-1 justify-end px-2">
+      <div class="flex items-stretch">
+        <div class="dropdown dropdown-hover dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-sm mr-3">
+            <template v-if="props.isTwelveHourFormat">12 hr</template>
+            <template v-else>24 hr</template>
+          </div>
+          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow">
+            <li><a @click="emit('toggleTimeFormat', '12hr')">12 hr</a></li>
+            <li><a @click="emit('toggleTimeFormat'), '24hr'">24 hr</a></li>
+          </ul>
         </div>
-        <ul
-          tabindex="0"
-          class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-300 rounded-box w-52"
-        >
-          <li><a>Item 1</a></li>
-          <li><a>Item 2</a></li>
-        </ul>
+        <ThemeController @theme-changed="emit('themeChanged', $event)" />
       </div>
-      <a class="btn btn-ghost text-xl">Timezones</a>
-    </div>
-    <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1">
-        <li><a>Item 1</a></li>
-        <li><a>Item 2</a></li>
-      </ul>
-    </div>
-    <div class="navbar-end">
-      <label class="swap swap-rotate me-2">
-        <input type="checkbox" class="theme-controller" value="synthwave" />
-        <SunIcon />
-        <MoonIcon />
-      </label>
-      <a class="btn btn-sm btn-ghost pointer-events-none">{{ currentTimeFormatted }}</a>
-      <button class="btn btn-sm btn-ghost" @click="$emit('toggleTimeFormat')">
-        <template v-if="props.isTwelveHourFormat"> 24 Hr </template>
-        <template v-else> 12 Hr </template>
-      </button>
     </div>
   </div>
 </template>
