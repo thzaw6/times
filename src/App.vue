@@ -31,19 +31,29 @@ function setTimeFormat(format) {
 }
 
 onBeforeMount(() => {
-  const localDateTime = DateTime.local();
-  locations.find((location) => {
-    if (location.timezoneIdentifier === localDateTime.zoneName) {
+  // check if there are stored locations in local storage
+  const storedLocations = JSON.parse(localStorage.getItem("locations"));
+  if (storedLocations.length) {
+    storedLocations.forEach((location) => {
       addedLocations.push(location);
-    }
-  });
+    });
+  } else {
+    // if no stored locations, add user's current location
+    const localDateTime = DateTime.local();
+    locations.find((location) => {
+      if (location.timezoneIdentifier === localDateTime.zoneName) {
+        addedLocations.push(location);
+      }
+    });
+  }
 });
 
 // if user location is empty, reset the offset
-watch(addedLocations, (newLocations) => {
-  if (newLocations.length === 0) {
+watch(addedLocations, (locs) => {
+  if (locs.length === 0) {
     offset.value = 0;
   }
+  localStorage.setItem("locations", JSON.stringify(locs));
 });
 </script>
 
