@@ -33,7 +33,7 @@ function setTimeFormat(format) {
 onBeforeMount(() => {
   // check if there are stored locations in local storage
   const storedLocations = JSON.parse(localStorage.getItem("locations"));
-  if (storedLocations.length) {
+  if (storedLocations && storedLocations.length) {
     storedLocations.forEach((location) => {
       addedLocations.push(location);
     });
