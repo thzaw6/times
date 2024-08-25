@@ -116,8 +116,7 @@ watchEffect(() => {
   <div class="card card-compact min-h-40 w-100 bg-base-100 shadow-xl m-2 hover:border hover:border-indigo-400">
     <div class="card-body">
       <div class="flex flex-row">
-        <!-- TODO: Don't make long names go to new line -->
-        <div class="">{{ location.city }}, {{ location.country }}</div>
+        <div class="truncate">{{ location.city }}, {{ location.country }}</div>
         <button
           type="button"
           class="btn btn-xs btn-ghost ms-auto bg-dark-100 tooltip"
