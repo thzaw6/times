@@ -41,6 +41,11 @@ function minuteOfDayToDateTime(minuteOfDay) {
 }
 
 function resetLocationDateTime() {
+  initialLocationDateTime.value = DateTime.local()
+    .setLocale("en-US")
+    .setZone(props.location.timezoneIdentifier)
+    .plus({ minutes: props.offset });
+  changedLocationDateTime.value = initialLocationDateTime.value;
   emit("updateOffset", 0);
 }
 
@@ -101,6 +106,7 @@ const formattedLocationDate = computed(() => {
 // watchers
 watchEffect(() => {
   changedLocationDateTime.value = DateTime.local()
+    .setLocale("en-US")
     .setZone(props.location.timezoneIdentifier)
     .plus({ minutes: props.offset });
 });
