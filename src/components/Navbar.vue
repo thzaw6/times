@@ -1,7 +1,4 @@
 <script setup>
-import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
-import { DateTime } from "luxon";
-
 import ThemeController from "./ThemeController.vue";
 
 const props = defineProps({
@@ -9,29 +6,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["themeChanged", "toggleTimeFormat"]);
-
-const currentTime = ref(null);
-
-function getCurrentTime() {
-  return DateTime.local().setLocale("en-US");
-}
-
-const currentTimeFormatted = computed(() => {
-  const format = props.isTwelveHourFormat ? DateTime.TIME_SIMPLE : DateTime.TIME_24_SIMPLE;
-  return currentTime.value.toLocaleString(format);
-});
-
-let intervalId;
-onBeforeMount(() => {
-  currentTime.value = getCurrentTime();
-  intervalId = setInterval(() => {
-    currentTime.value = getCurrentTime();
-  }, 1000);
-});
-
-onBeforeUnmount(() => {
-  clearInterval(intervalId);
-});
 </script>
 
 <template>
