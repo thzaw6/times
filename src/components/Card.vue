@@ -1,23 +1,29 @@
 <script setup>
-import { ref, computed, onBeforeMount, watchEffect } from "vue";
+import { ref, computed, onBeforeMount, watch } from "vue";
 import { DateTime } from "luxon";
+import VueDatePicker from "@vuepic/vue-datepicker";
 import VueSlider from "vue-slider-component";
+import "@vuepic/vue-datepicker/dist/main.css";
 
+import EditIcon from "./icons/EditIcon.vue";
 import ResetIcon from "./icons/ResetIcon.vue";
 import TrashIcon from "./icons/TrashIcon.vue";
 
 // props
 const props = defineProps({
+  sharedCustomDate: Object,
   location: Object,
   isTwelveHourFormat: Boolean,
+  darkMode: Boolean,
   offset: Number,
   userLocation: Object,
 });
 
 // emits
-const emit = defineEmits(["removeLocation", "updateOffset"]);
+const emit = defineEmits(["customDateSet", "removeLocation", "updateOffset"]);
 
 // reactive data
+const customDate = ref(null);
 const changedLocationDateTime = ref(null);
 const initialLocationDateTime = ref(null);
 const hourDiffFromUserLocation = ref(null);
@@ -47,6 +53,7 @@ function resetLocationDateTime() {
     .plus({ minutes: props.offset });
   changedLocationDateTime.value = initialLocationDateTime.value;
   emit("updateOffset", 0);
+  emit("customDateSet", null);
 }
 
 function setLocationHourDifference() {
@@ -60,6 +67,17 @@ function setLocationHourDifference() {
   const locationOffset = thisLocationDateTime.offset;
 
   hourDiffFromUserLocation.value = (userOffset - locationOffset) / 60; // difference in hours
+}
+
+function onSetCustomDate(value) {
+  customDate.value = value;
+  const newDateTime = DateTime.fromJSDate(value);
+  changedLocationDateTime.value = changedLocationDateTime.value.set({
+    year: newDateTime.year,
+    month: newDateTime.month,
+    day: newDateTime.day,
+  });
+  emit("customDateSet", newDateTime);
 }
 
 // lifecycle hooks
@@ -103,13 +121,36 @@ const formattedLocationDate = computed(() => {
   return changedLocationDateTime.value.toLocaleString(DateTime.DATE_MED);
 });
 
-// watchers
-watchEffect(() => {
-  changedLocationDateTime.value = DateTime.local()
-    .setLocale("en-US")
-    .setZone(props.location.timezoneIdentifier)
-    .plus({ minutes: props.offset });
-});
+
+watch(
+  () => props.offset,
+  (newOffset) => {
+    if (props.sharedCustomDate) {
+      changedLocationDateTime.value = props.sharedCustomDate
+        .setLocale("en-US")
+        .setZone(props.location.timezoneIdentifier)
+        .plus({ minutes: newOffset });
+    } else {
+      changedLocationDateTime.value = DateTime.local()
+        .setLocale("en-US")
+        .setZone(props.location.timezoneIdentifier)
+        .plus({ minutes: newOffset });
+    }
+  }
+);
+
+watch(
+  () => props.sharedCustomDate,
+  (newDate) => {
+    if (newDate) {
+      changedLocationDateTime.value = changedLocationDateTime.value.set({
+        year: newDate.year,
+        month: newDate.month,
+        day: newDate.day,
+      });
+    }
+  }
+);
 </script>
 
 <template>
@@ -148,9 +189,24 @@ watchEffect(() => {
           }}
         </div>
       </div>
-
-      <div class="text-sm">
-        <span>{{ formattedUTCOffset }}</span> | <span>{{ formattedLocationDate }}</span>
+      <div class="flex flex-row text-sm items-center">
+        <div>{{ formattedUTCOffset }}</div>
+        <span class="mx-1">|</span>
+        <VueDatePicker
+          :model-value="customDate"
+          position="right"
+          :offset="5"
+          :enable-time-picker="false"
+          :dark="darkMode"
+          @update:model-value="onSetCustomDate"
+        >
+          <template #trigger>
+            <div class="flex flex-row cursor-pointer items-center">
+              {{ formattedLocationDate }}
+              <EditIcon class="ms-1" />
+            </div>
+          </template>
+        </VueDatePicker>
       </div>
       <div class="mx-1 mt-3 mb-4">
         <vue-slider v-model="locationMinuteOfDay" :min="0" :max="1439" :tooltip="'none'" :interval="1" :marks="marks" />

@@ -9,8 +9,10 @@ import NewCard from "./components/NewCard.vue";
 
 const userLocation = locations.find((location) => location.timezoneIdentifier === DateTime.local().zoneName);
 const addedLocations = reactive([]);
+const customDate = ref(null);
 const offset = ref(0);
 const isTwelveHourFormat = ref(true);
+const darkMode = ref(false);
 
 function addNewLocation(location) {
   addedLocations.push(location);
@@ -22,6 +24,7 @@ function removeLocation(location) {
 }
 
 function setTheme(isDarkMode) {
+  darkMode.value = isDarkMode;
   const theme = isDarkMode ? "dark" : "light";
   document.getElementById("base-html").setAttribute("data-theme", theme);
 }
@@ -65,9 +68,12 @@ watch(addedLocations, (locs) => {
         v-for="location in addedLocations"
         :key="location.city"
         :location="location"
+        :dark-mode="darkMode"
         :is-twelve-hour-format="isTwelveHourFormat"
         :offset="offset"
         :user-location="userLocation"
+        :shared-custom-date="customDate"
+        @custom-date-set="customDate = $event"
         @remove-location="removeLocation"
         @update-offset="offset = $event"
       />

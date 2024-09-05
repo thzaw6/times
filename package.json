@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@trevoreyre/autocomplete-vue": "^3.0.2",
+    "@vuepic/vue-datepicker": "^9.0.2",
     "luxon": "^3.4.4",
     "vue": "^3.3.11",
     "vue-slider-component": "^4.1.0-beta.7"
