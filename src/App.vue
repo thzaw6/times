@@ -62,7 +62,7 @@ watch(addedLocations, (locs) => {
 
 <template>
   <Navbar :is-twelve-hour-format="isTwelveHourFormat" @toggle-time-format="setTimeFormat" @theme-changed="setTheme" />
-  <div class="container mx-auto">
+  <div class="container lg:px-4">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <Card
         v-for="location in addedLocations"
