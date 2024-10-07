@@ -190,7 +190,7 @@ watch(
         </div>
       </div>
       <div class="flex flex-row text-sm items-center">
-        <div>{{ formattedUTCOffset }}</div>
+        <span class="flex-auto whitespace-nowrap">{{ formattedUTCOffset }}</span>
         <span class="mx-1">|</span>
         <VueDatePicker
           :model-value="customDate"
