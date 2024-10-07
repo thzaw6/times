@@ -515,11 +515,6 @@
     "timezoneIdentifier": "Africa/Ndjamena"
   },
   {
-    "city": "Urumqi",
-    "country": "China",
-    "timezoneIdentifier": "Asia/Urumqi"
-  },
-  {
     "city": "Chongqing",
     "country": "China",
     "timezoneIdentifier": "Asia/Chongqing"
@@ -533,11 +528,6 @@
     "city": "Harbin",
     "country": "China",
     "timezoneIdentifier": "Asia/Harbin"
-  },
-  {
-    "city": "Kashgar",
-    "country": "China",
-    "timezoneIdentifier": "Asia/Kashgar"
   },
   {
     "city": "Bogota",
